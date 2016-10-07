@@ -27,14 +27,12 @@
 				height: 25px;
 				width: 15px;
 			}
-
 			TABLE.grid TD.ground{ color:#333; }
 			TABLE.grid TD.environedge{ color:#fff; }
 			TABLE.grid TD.sidewalk{ color:#a9f; }
 			TABLE.grid TD.buildingwall{ color:#c36; }
 			TABLE.grid TD.windowhome{ color:#ff0; }
 			TABLE.grid TD.windownothome{ color:#666; }
-
 			TABLE.building TD{
 				color:#faa;
 				padding: 0px;
@@ -103,12 +101,12 @@
 			var d = document;
 			var br = '<br>';
 			var basemap = Array();
-
+			var gridwide = 8;
+			var gridtall = 7;
 	    $(document).ready(function () {
 		    $("body").delegate("#hex1", "change", function () {
 		        displayHexCode();
 		    });
-
 		    $("body").delegate("#hex2", "change", function () {
 		        displayHexCode();
 		    });
@@ -119,7 +117,6 @@
 				$("#unicode tr").remove();
 				var u1 = $("#hex1").val();
 				var u2 = $("#hex2").val();
-
 				var aRow;
 				ja = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 				for(i=0;i<ja.length;i++)
@@ -168,16 +165,19 @@
 			}
 			var randomWindow = new WindowObject();
 			this.windowtype = new GridObject((new WindowObject()).unicode, "window");
-
 			this.buildingmap = Array();
 			this.makeBuilding = makeBuilding;
 			this.floors = 1;
+			this.randomfloors = rf;
+			function rf() {
+				var floorcount = Math.floor(Math.random() * (4)) + 1 /* 1, 2, 3, 4 */
+				this.floors = floorcount;				
+			}
 			this.downfromUL = 0;
 			this.rightfromUL = 0;
 			function makeBuilding() {
 					lv = 0;
 					cl = 0;
-
 					/*roof*/
 					this.buildingmap[lv] = Array();
 					this.buildingmap[lv][cl++] = this.upperleftwall;
@@ -185,7 +185,6 @@
 					this.buildingmap[lv][cl++] = this.roofedge;
 					this.buildingmap[lv][cl++] = this.roofedge;
 					this.buildingmap[lv][cl++] = this.upperrightwall;
-
 					for(i=0;i<this.floors;i++)
 					{
 						/*floor top*/
@@ -217,25 +216,6 @@
 					this.buildingmap[lv][cl++] = this.lowerrightwall;			
 					}
 			}
-		var aBuilding1 = new BuildingObject();
-		aBuilding1.floors = 1;
-		aBuilding1.makeBuilding();
-		var aBuildingMap1 = aBuilding1.buildingmap;
-		
-		var aBuilding2 = new BuildingObject();
-		aBuilding2.floors = 2;
-		aBuilding2.makeBuilding();
-		var aBuildingMap2 = aBuilding2.buildingmap;
-		
-		var aBuilding3 = new BuildingObject();
-		aBuilding3.floors = 1;
-		aBuilding3.makeBuilding();
-		var aBuildingMap3 = aBuilding3.buildingmap;
-		
-		var aBuilding4 = new BuildingObject();
-		aBuilding4.floors = 3;
-		aBuilding4.makeBuilding();
-		var aBuildingMap4 = aBuilding4.buildingmap;
 			
 		function SidewalkObject() {
 			this.pavednorthedge = new GridObject("&#x252c;", "sidewalk");
@@ -253,7 +233,6 @@
 			function makeSidewalk() {
 				lv = 0;
 				cl = 0;
-
 				this.sidewalkmap[0] = Array();
 				this.sidewalkmap[0][0] = this.pavedupperleft;
 				for(i=0;i < 7;i++)
@@ -261,7 +240,6 @@
 					this.sidewalkmap[0][i+1] = this.pavednorthedge;
 					}
 				this.sidewalkmap[0][8] = this.pavedupperright;
-
 				this.sidewalkmap[1] = Array();
 				this.sidewalkmap[1][0] = this.pavedeastedge;
 				this.sidewalkmap[1][1] = this.pavedinsidecorners;
@@ -285,7 +263,6 @@
 					this.sidewalkmap[i+2][7] = this.pavedeastedge;
 					this.sidewalkmap[i+2][8] = this.pavedwestedge;
 					}
-
 				/* Bottom section */
 				this.sidewalkmap[6] = Array();
 				this.sidewalkmap[6][0] = this.pavedeastedge;
@@ -296,7 +273,6 @@
 					}
 				this.sidewalkmap[6][7] = this.pavedinsidecorners;
 				this.sidewalkmap[6][8] = this.pavedwestedge;
-
 				this.sidewalkmap[7] = Array();
 				this.sidewalkmap[7][0] = this.pavedlowerleft;
 				for(i=0;i < 7;i++)
@@ -307,9 +283,6 @@
 					
 			}
 			}
-		var aSidewalk = new SidewalkObject();
-		aSidewalk.makeSidewalk();
-		var aSidewalkMap = aSidewalk.sidewalkmap;
 		
 		function EnvironObject() {
 			this.environupperleft = new GridObject("&#x2554;", "environedge");
@@ -319,99 +292,106 @@
 			this.environinsideground = new GridObject("&#x2591;", "ground");
 			this.environtopbottom = new GridObject("&#x2550;", "environedge");
 			this.environleftright = new GridObject("&#x2551;", "environedge");
-			}
-		/* Enivronment Components */
-			var environupperleft = {
-				cssclass: "environedge",
-				unicode: "&#x2554;"
-				}
-			var environupperright = {
-				cssclass: "environedge",
-				unicode: "&#x2557;"
-				}
-			var environlowerleft = {
-				cssclass: "environedge",
-				unicode: "&#x255a;"
-				}
-			var environlowerright = {
-				cssclass: "environedge",
-				unicode: "&#x255d;"
-				}
-			var environinsideground = {
-				cssclass: "ground",
-				unicode: "&#x2591;"
-				}
-			var environtopbottom = {
-				cssclass: "environedge",
-				unicode: "&#x2550;"
-				}
-			var environleftright = {
-				cssclass: "environedge",
-				unicode: "&#x2551;"
-				}
-		
-			/* Code for the Outer Box */
-			var box = function(){
-				var gwidth = 30;
-				var gheight = gwidth - 1;
-	
-			boxtop = function() {
-				basemap[0] = Array();
-				basemap[0][0] = environupperleft;
+			this.basemap = Array();
+			this.makebasemap = makebasemap;
+			function makebasemap() {
+				lv = 0;
+				cl = 0;
+				var gridHeight = 2;
+				var gridWidth = gridHeight + 1;
+				var laneWidth = 4;
+				var sidewalkSpace = 9;
+				totalWidth = (gridWidth * sidewalkSpace) + (laneWidth * (gridWidth + 1));
+				totalHeight = (gridHeight * sidewalkSpace) + (laneWidth * (gridHeight + 1));
+				
+				var gwidth = totalWidth;
+				var gheight = totalHeight - 2;
+				
+				/* Top section*/
+				this.basemap[0] = Array();
+				this.basemap[0][0] = this.environupperleft;
 				for(i=1;i<=gwidth;i++)
 				{
-					basemap[0][i] = environtopbottom;
+					this.basemap[0][i] = this.environtopbottom;
 					}
-				basemap[0][gwidth+1] = environupperright;
-				}
-			
-			boxmiddle = function() {
+				this.basemap[0][gwidth+1] = this.environupperright;
+				
+				/* Middle section */
 				for(i=1;i <= gheight; i++)
 				{
-					basemap[i] = Array();
-					basemap[i][0] = environleftright;
+					this.basemap[i] = Array();
+					this.basemap[i][0] = this.environleftright;
 					for(j=1;j<=gwidth;j++)
 					{
-						basemap[i][j] = environinsideground;
+						this.basemap[i][j] = this.environinsideground;
 						}
-					basemap[i][gwidth+1] = environleftright;
+					this.basemap[i][gwidth+1] = this.environleftright;
 					}
-				}
-			
-			boxbottom = function() {
-				basemap[gheight+1] = Array();
-				basemap[gheight+1][0] = environlowerleft;
+
+				/* Bottom section */
+				this.basemap[gheight+1] = Array();
+				this.basemap[gheight+1][0] = this.environlowerleft;
 				for(i=1;i<=gwidth;i++)
 				{
-					basemap[gheight+1][i] = environtopbottom;
+					this.basemap[gheight+1][i] = this.environtopbottom;
 					}
-				basemap[gheight+1][gwidth+1] = environlowerright;
-				}
-				
-			boxtop();
-			boxmiddle();
-			boxbottom();
+				this.basemap[gheight+1][gwidth+1] = this.environlowerright;
+					
 			}
-			box();
-			
-			
-			function writeArrayIntoArray(barray, iarray, xstart, ystart)
+			}
+		var aBasemap = new EnvironObject();
+		aBasemap.makebasemap();
+		var basemap = aBasemap.basemap;
+
+		var aSidewalk = new SidewalkObject();
+		aSidewalk.makeSidewalk();
+		var aSidewalkMap = aSidewalk.sidewalkmap;
+		
+		function writeArrayIntoArray(barray, iarray, xstart, ystart)
+		{
+			for(i=0;i<iarray.length;i++)
 			{
-				for(i=0;i<iarray.length;i++)
+				for(j=0;j<iarray[i].length;j++)
 				{
-					for(j=0;j<iarray[i].length;j++)
-					{
-						barray[xstart+i][ystart+j] = iarray[i][j];
-						}
+					barray[xstart+i][ystart+j] = iarray[i][j];
 					}
-				return barray;
 				}
+			return barray;
+			}
+			
+		var gridHeight = 2;
+		var gridWidth = gridHeight + 1;
+		var laneWidth = 4;
+		var sidewalkSpace = 9;
+		var xdown = 5;
+		var xover = 5;
 
-			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 5, 5);
-			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 17, 5);
-			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 5, 18);
-			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 17, 18);
+		var buildingArray = Array();
+		for(ix=0;ix<(gridHeight*gridWidth);ix++)
+		{
+			var aBuilding = new BuildingObject();
+			aBuilding.randomfloors();
+			aBuilding.makeBuilding();
+			buildingArray[ix] = aBuilding.buildingmap;
+			}
 
+		var theBuildings = 0;
+		for(ix=0;ix<gridHeight;ix++)
+		{
+			for(jx=0;jx<gridWidth;jx++)
+			{
+				var xxdown = (xdown + (ix*12));
+				var xxover = (xover + (jx*13));
+				buildingArray[theBuildings].downfromUL = (xxdown + 2) + (2 - (buildingArray[theBuildings].floors * 2));
+				buildingArray[theBuildings].rightfromUL = (xxover + 2);
+
+				basemap = writeArrayIntoArray(basemap, aSidewalkMap , xxdown, xxover);
+				//basemap = writeArrayIntoArray(basemap, buildingArray[theBuildings], buildingArray[theBuildings].downfromUL, buildingArray[theBuildings].rightfromUL);
+				theBuildings++;
+				}
+			}
+				
+			/*
 			// down and over
 			aBuilding1.downfromUL = 7 + (2 - (aBuilding1.floors * 2));
 			aBuilding1.rightfromUL = 7;
@@ -425,6 +405,7 @@
 			aBuilding4.downfromUL = 19 + (2 - (aBuilding4.floors * 2));
 			aBuilding4.rightfromUL = 20;
 			basemap = writeArrayIntoArray(basemap, aBuildingMap4, aBuilding4.downfromUL, aBuilding4.rightfromUL);
+			// */
 			
 			// ***** ***** ***** ***** ***** ***** 
 			// ***** Print Map 
