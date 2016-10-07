@@ -1,0 +1,463 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<style>
+			BODY {
+				background-color:#000000; color:#ffff00;
+				border:1px solid #ffaa00;
+				margin:10px 30px 10px 20px;
+				padding:10px 10px 10px 10px;
+				}
+			A {color:#ccaa77;}
+			A:visited {color:#ffaa00;}
+			
+			SMALL {font:normal 12px courier;}
+			SMALL A {color:#ff0000; margin-left:15px;}
+			SMALL A:visited {color:#ff00ff;}
+			
+			TABLE.grid, TABLE.sidewalk, TABLE.unicode, TABLE.building {
+				border-spacing: 0px;
+				border-collapse: separate;
+			}
+			
+			TABLE.grid TD{
+				color:#9fa;
+				padding: 0px;
+				margin: 0px;
+				height: 25px;
+				width: 15px;
+			}
+
+			TABLE.grid TD.ground{ color:#333; }
+			TABLE.grid TD.environedge{ color:#fff; }
+			TABLE.grid TD.sidewalk{ color:#a9f; }
+			TABLE.grid TD.buildingwall{ color:#c36; }
+			TABLE.grid TD.windowhome{ color:#ff0; }
+			TABLE.grid TD.windownothome{ color:#666; }
+
+			TABLE.building TD{
+				color:#faa;
+				padding: 0px;
+				margin: 0px;
+				text-align: center;
+				vertical-align: bottom;
+			}
+			TABLE.building TD.window{
+				color:#ff9;
+				text-align: center;
+				vertical-align: top;
+			}
+			TABLE.building TD.door{
+				color:#999;
+				text-align: center;
+				vertical-align: bottom;
+			}
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	</head>
+
+	<body>
+		<form>
+			<select id="hex1" name="hex1">
+				<option>0</option>
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>a</option>
+				<option>b</option>
+				<option>c</option>
+				<option>d</option>
+				<option>e</option>
+				<option>f</option>
+			</select>
+			<select id="hex2" name="hex2">
+				<option>0</option>
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>a</option>
+				<option>b</option>
+				<option>c</option>
+				<option>d</option>
+				<option>e</option>
+				<option>f</option>
+			</select>
+			<input type="button" id="clear" name="clear" value="Clear" onclick="clearunicode()" />
+		</form>
+		
+		<table id="unicode" name="unicode" class="unicode"><tbody></tbody></table>
+		
+		<script>
+			var d = document;
+			var br = '<br>';
+			var basemap = Array();
+
+	    $(document).ready(function () {
+		    $("body").delegate("#hex1", "change", function () {
+		        displayHexCode();
+		    });
+
+		    $("body").delegate("#hex2", "change", function () {
+		        displayHexCode();
+		    });
+			});
+			
+			function clearunicode(){$("#unicode tr").remove();}
+			function displayHexCode(){
+				$("#unicode tr").remove();
+				var u1 = $("#hex1").val();
+				var u2 = $("#hex2").val();
+
+				var aRow;
+				ja = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+				for(i=0;i<ja.length;i++)
+				{
+					aRow = "<tr>";
+					for(j=0;j<ja.length;j++)
+					{
+						uc = u1 + u2 + ja[i] + ja[j];
+						aRow += "<td>";
+						aRow += "(" + uc + ")";
+						aRow += "</td>";
+						aRow += "<td>";
+						aRow += "<span style='color:#fff;'>&#x" + uc + ";</span>";
+						aRow += "</td>";
+						}
+					aRow += "</tr>";
+					$('#unicode > tbody:last-child').append(aRow);
+					}
+			}
+			
+		/* GRID OBJECTS */
+		function GridObject(unicode, cssclass) {
+			this.unicode = unicode;
+			this.cssclass = cssclass;
+		}
+		
+		function BuildingObject() {
+			this.leftwall = new GridObject("&#x255e;", "buildingwall");
+			this.rightwall = new GridObject("&#x2561;", "buildingwall");
+			this.upperleftwall = new GridObject("&#x2552;", "buildingwall");
+			this.upperrightwall = new GridObject("&#x2555;", "buildingwall");
+			this.lowerleftwall = new GridObject("&#x2558;", "buildingwall");
+			this.lowerrightwall = new GridObject("&#x255b;", "buildingwall");
+			this.roofedge = new GridObject("&#x2505;", "buildingwall");
+			this.flooredge = new GridObject("&#x2501;", "buildingwall");
+			this.frontdoor = new GridObject("&#x290a;", "buildingwall");
+			function WindowObject() {
+				var windowtype = Math.floor(Math.random() * (7)) + 3 /* 3, 4, 5, 6, 7, 8, 9 */
+				this.unicode = "&#x" + "25a" + windowtype + ";";
+				var homeornot = Math.floor(Math.random() * (100))
+				if(homeornot<=50)
+				{this.cssclass = "windowhome";}
+				else 
+				{this.cssclass = "windownothome";}
+					
+			}
+			var randomWindow = new WindowObject();
+			this.windowtype = new GridObject((new WindowObject()).unicode, "window");
+
+			this.buildingmap = Array();
+			this.makeBuilding = makeBuilding;
+			this.floors = 1;
+			this.downfromUL = 0;
+			this.rightfromUL = 0;
+			function makeBuilding() {
+					lv = 0;
+					cl = 0;
+
+					/*roof*/
+					this.buildingmap[lv] = Array();
+					this.buildingmap[lv][cl++] = this.upperleftwall;
+					this.buildingmap[lv][cl++] = this.roofedge;
+					this.buildingmap[lv][cl++] = this.roofedge;
+					this.buildingmap[lv][cl++] = this.roofedge;
+					this.buildingmap[lv][cl++] = this.upperrightwall;
+
+					for(i=0;i<this.floors;i++)
+					{
+						/*floor top*/
+						lv++; cl=0;
+						this.buildingmap[lv] = Array();
+						this.buildingmap[lv][cl++] = this.leftwall;
+						this.buildingmap[lv][cl++] = this.roofedge;
+						this.buildingmap[lv][cl++] = this.roofedge;
+						this.buildingmap[lv][cl++] = this.roofedge;
+						this.buildingmap[lv][cl++] = this.rightwall;
+	
+						/*floor windows*/
+						lv++; cl=0;
+						this.buildingmap[lv] = Array();
+						this.buildingmap[lv][cl++] = this.leftwall;
+						this.buildingmap[lv][cl++] = new WindowObject();
+						this.buildingmap[lv][cl++] = new WindowObject();
+						this.buildingmap[lv][cl++] = new WindowObject();
+						this.buildingmap[lv][cl++] = this.rightwall;
+						}
+						
+					/*ground floor*/
+					lv++; cl=0;
+					this.buildingmap[lv] = Array();
+					this.buildingmap[lv][cl++] = this.lowerleftwall;
+					this.buildingmap[lv][cl++] = this.flooredge;
+					this.buildingmap[lv][cl++] = this.frontdoor;
+					this.buildingmap[lv][cl++] = this.flooredge;
+					this.buildingmap[lv][cl++] = this.lowerrightwall;			
+					}
+			}
+		var aBuilding1 = new BuildingObject();
+		aBuilding1.floors = 1;
+		aBuilding1.makeBuilding();
+		var aBuildingMap1 = aBuilding1.buildingmap;
+		
+		var aBuilding2 = new BuildingObject();
+		aBuilding2.floors = 2;
+		aBuilding2.makeBuilding();
+		var aBuildingMap2 = aBuilding2.buildingmap;
+		
+		var aBuilding3 = new BuildingObject();
+		aBuilding3.floors = 1;
+		aBuilding3.makeBuilding();
+		var aBuildingMap3 = aBuilding3.buildingmap;
+		
+		var aBuilding4 = new BuildingObject();
+		aBuilding4.floors = 3;
+		aBuilding4.makeBuilding();
+		var aBuildingMap4 = aBuilding4.buildingmap;
+			
+		function SidewalkObject() {
+			this.pavednorthedge = new GridObject("&#x252c;", "sidewalk");
+			this.pavedsouthedge = new GridObject("&#x2534;", "sidewalk");
+			this.pavedeastedge = new GridObject("&#x251c;", "sidewalk");
+			this.pavedwestedge = new GridObject("&#x2524;", "sidewalk");
+			this.pavedupperleft = new GridObject("&#x250c;", "sidewalk");
+			this.pavedupperright = new GridObject("&#x2510;", "sidewalk");
+			this.pavedlowerleft = new GridObject("&#x2514;", "sidewalk");
+			this.pavedlowerright = new GridObject("&#x2518;", "sidewalk");
+			this.pavedinsidecorners = new GridObject("&#x253c;", "sidewalk");
+			this.pavedinsidespace = new GridObject("&#x253c;", "ground");
+			this.sidewalkmap = Array();
+			this.makeSidewalk = makeSidewalk;
+			function makeSidewalk() {
+				lv = 0;
+				cl = 0;
+
+				this.sidewalkmap[0] = Array();
+				this.sidewalkmap[0][0] = this.pavedupperleft;
+				for(i=0;i < 7;i++)
+				{
+					this.sidewalkmap[0][i+1] = this.pavednorthedge;
+					}
+				this.sidewalkmap[0][8] = this.pavedupperright;
+
+				this.sidewalkmap[1] = Array();
+				this.sidewalkmap[1][0] = this.pavedeastedge;
+				this.sidewalkmap[1][1] = this.pavedinsidecorners;
+				for(i=0;i < 5;i++)
+				{
+					this.sidewalkmap[1][i+2] = this.pavedsouthedge;
+					}
+				this.sidewalkmap[1][7] = this.pavedinsidecorners;
+				this.sidewalkmap[1][8] = this.pavedwestedge;
+				
+				/* Middle section */
+				for(i=0;i < 4; i++)
+				{
+					this.sidewalkmap[i+2] = Array();
+					this.sidewalkmap[i+2][0] = this.pavedeastedge;
+					this.sidewalkmap[i+2][1] = this.pavedwestedge;
+					for(j=0;j < 5;j++)
+					{
+						this.sidewalkmap[i+2][j+2] = this.pavedinsidespace;
+						}
+					this.sidewalkmap[i+2][7] = this.pavedeastedge;
+					this.sidewalkmap[i+2][8] = this.pavedwestedge;
+					}
+
+				/* Bottom section */
+				this.sidewalkmap[6] = Array();
+				this.sidewalkmap[6][0] = this.pavedeastedge;
+				this.sidewalkmap[6][1] = this.pavedinsidecorners;
+				for(i=0;i < 5;i++)
+				{
+					this.sidewalkmap[6][i+2] = this.pavednorthedge;
+					}
+				this.sidewalkmap[6][7] = this.pavedinsidecorners;
+				this.sidewalkmap[6][8] = this.pavedwestedge;
+
+				this.sidewalkmap[7] = Array();
+				this.sidewalkmap[7][0] = this.pavedlowerleft;
+				for(i=0;i < 7;i++)
+				{
+					this.sidewalkmap[7][i+1] = this.pavedsouthedge;
+					}
+				this.sidewalkmap[7][8] = this.pavedlowerright;
+					
+			}
+			}
+		var aSidewalk = new SidewalkObject();
+		aSidewalk.makeSidewalk();
+		var aSidewalkMap = aSidewalk.sidewalkmap;
+		
+		function EnvironObject() {
+			this.environupperleft = new GridObject("&#x2554;", "environedge");
+			this.environupperright = new GridObject("&#x2557;", "environedge");
+			this.environlowerleft = new GridObject("&#x255a;", "environedge");
+			this.environlowerright = new GridObject("&#x255d;", "environedge");
+			this.environinsideground = new GridObject("&#x2591;", "ground");
+			this.environtopbottom = new GridObject("&#x2550;", "environedge");
+			this.environleftright = new GridObject("&#x2551;", "environedge");
+			}
+		/* Enivronment Components */
+			var environupperleft = {
+				cssclass: "environedge",
+				unicode: "&#x2554;"
+				}
+			var environupperright = {
+				cssclass: "environedge",
+				unicode: "&#x2557;"
+				}
+			var environlowerleft = {
+				cssclass: "environedge",
+				unicode: "&#x255a;"
+				}
+			var environlowerright = {
+				cssclass: "environedge",
+				unicode: "&#x255d;"
+				}
+			var environinsideground = {
+				cssclass: "ground",
+				unicode: "&#x2591;"
+				}
+			var environtopbottom = {
+				cssclass: "environedge",
+				unicode: "&#x2550;"
+				}
+			var environleftright = {
+				cssclass: "environedge",
+				unicode: "&#x2551;"
+				}
+		
+			/* Code for the Outer Box */
+			var box = function(){
+				var gwidth = 30;
+				var gheight = gwidth - 1;
+	
+			boxtop = function() {
+				basemap[0] = Array();
+				basemap[0][0] = environupperleft;
+				for(i=1;i<=gwidth;i++)
+				{
+					basemap[0][i] = environtopbottom;
+					}
+				basemap[0][gwidth+1] = environupperright;
+				}
+			
+			boxmiddle = function() {
+				for(i=1;i <= gheight; i++)
+				{
+					basemap[i] = Array();
+					basemap[i][0] = environleftright;
+					for(j=1;j<=gwidth;j++)
+					{
+						basemap[i][j] = environinsideground;
+						}
+					basemap[i][gwidth+1] = environleftright;
+					}
+				}
+			
+			boxbottom = function() {
+				basemap[gheight+1] = Array();
+				basemap[gheight+1][0] = environlowerleft;
+				for(i=1;i<=gwidth;i++)
+				{
+					basemap[gheight+1][i] = environtopbottom;
+					}
+				basemap[gheight+1][gwidth+1] = environlowerright;
+				}
+				
+			boxtop();
+			boxmiddle();
+			boxbottom();
+			}
+			box();
+			
+			
+			function writeArrayIntoArray(barray, iarray, xstart, ystart)
+			{
+				for(i=0;i<iarray.length;i++)
+				{
+					for(j=0;j<iarray[i].length;j++)
+					{
+						barray[xstart+i][ystart+j] = iarray[i][j];
+						}
+					}
+				return barray;
+				}
+
+			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 5, 5);
+			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 17, 5);
+			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 5, 18);
+			basemap = writeArrayIntoArray(basemap, aSidewalkMap , 17, 18);
+
+			// down and over
+			aBuilding1.downfromUL = 7 + (2 - (aBuilding1.floors * 2));
+			aBuilding1.rightfromUL = 7;
+			basemap = writeArrayIntoArray(basemap, aBuildingMap1, aBuilding1.downfromUL, aBuilding1.rightfromUL);
+			aBuilding2.downfromUL = 19 + (2 - (aBuilding2.floors * 2));
+			aBuilding2.rightfromUL = 7;
+			basemap = writeArrayIntoArray(basemap, aBuildingMap2, aBuilding2.downfromUL, aBuilding2.rightfromUL);
+			aBuilding3.downfromUL = 7 + (2 - (aBuilding3.floors * 2));
+			aBuilding3.rightfromUL = 20;
+			basemap = writeArrayIntoArray(basemap, aBuildingMap3, aBuilding3.downfromUL, aBuilding3.rightfromUL);
+			aBuilding4.downfromUL = 19 + (2 - (aBuilding4.floors * 2));
+			aBuilding4.rightfromUL = 20;
+			basemap = writeArrayIntoArray(basemap, aBuildingMap4, aBuilding4.downfromUL, aBuilding4.rightfromUL);
+			
+			// ***** ***** ***** ***** ***** ***** 
+			// ***** Print Map 
+			// ***** ***** ***** ***** ***** ***** 
+			d.write('<table class="grid">');
+			for(i=0;i<basemap.length;i++)
+			{
+				d.write('<tr>');
+				for(j=0;j<basemap[i].length;j++)
+				{
+					d.write('<td class="' + basemap[i][j].cssclass + '">');
+					d.write(basemap[i][j].unicode);
+					d.write('</td>');
+					}
+				d.write('</tr>');
+				}
+			d.write('</table>');
+			d.writeln(br);
+			
+			/*
+				* Lay Border
+				* Lay Road
+				* Lay Sidewalk
+				* Lay Foundations
+				* Top Down Lay Stories
+				* Place Doors
+				* Place Entries
+			*/
+			
+	    $(document).ready(function () {
+	    	$("#hex1").val('2');
+	    	$("#hex2").val('5');
+			});
+		</script>		
+	</body>
+</html>
