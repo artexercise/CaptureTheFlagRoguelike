@@ -6,7 +6,7 @@ class ctfPerson():
 		self.gender = ""		# Can be Male or Female
 		self.age = ""			# Start with ages 19 to 115
 		self.givenname = ""		# Gender and Age Based
-		self.sername = ""		# To Trace families
+		self.surname = ""		# To Trace families
 		self.profession = ""	# From the environment and strangeness
 		self.married = ""		# Toggle: A decision for different kinds of families may have to be made
 		self.children = ""		# Toggle: Consider adoption based on above as well?
