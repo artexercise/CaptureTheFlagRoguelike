@@ -2,14 +2,21 @@ __author__ = "jjeskiewicz"
 
 class ctfStyle:
    class ctfDecor:
-      MidCenturyModern = "Mid-Century Modern"
-      Industrial = "Industrial"
-      Nautical = "Nautical"
-      Scandinavian = "Scandinavian"
-      Bohemian = "Bohemian"
-      Farmhouse = "Farmhouse"
-      UrbanModern = "Urban Modern"
-      ShabbyChic = "Shabby Chic"
+      class objDecor:
+         def __init__(self, name, desc):
+            self.name = name
+            self.desc = desc
+         def __str__(self):
+            return self.name
+
+      MidCenturyModern = objDecor("Mid-Century Modern", "It is characterized by refined lines, minimalist silhouettes, and natural shapes.  Masters defined creative ways to use new materials like molded plastic, plywood, and aluminum in industrial design")
+      Industrial = objDecor("Industrial", "It emphasizes liberal use of exposed steel with distressed wooden elements, frequently complemented by exposed brick walls. The modern variant commonly includes copper-tone accents. In terms of general feel, industrial decor is often rustic and mature.")
+      Nautical = objDecor("Nautical", "Warm, relaxing, and positive. Style is based on white or sand colored foundation, with blue as the primary accent color.")
+      Scandinavian = objDecor("Scandinavian", "Featuring gentle contours, playful accent colors, and a balance of engineered and organic materials, Scandinavian furniture are simple, contemporary, and functional. Many Scandinavian designs employ Bauhaus principles and is characterized by fluid lines, focus on object proportions, and populist appeal. A great majority of Scandinavian interiors use white with gray tones as the foundation colors.")
+      Bohemian = objDecor("Bohemian", "Bohemian decor captures the carefree and adventurous spirit of the avant-garde lifestyle. It features creative application of rich patterns and vibrant colors, especially those with red or purple tones. The key is to carefully present a purposefully “messy” look. Layer on textiles (throws, pillows, rugs, tapestry) for a warm ambience.")
+      Farmhouse = objDecor("Farmhouse", "Farmhouse decor is a modern approach to cabin-inspired interior design. Mostly transitional in nature with some traditional elements mixed in, farmhouse aesthetic should transport your imagination to French Provence.")
+      UrbanModern = objDecor("Urban Modern", "Urban interior design stems from the modern designer lofts in the major cities. Taking cues from its cosmopolitan environment, urban modern is a fusion of various opposing and complementary traits. Minimalist modern, glamorous chic, ethnic heirlooms, and edgy experimental designs all collide in a distinctively 21st-century setting.")
+      ShabbyChic = objDecor("Shabby Chic", "Shabby chic decor emphasizes vintage elements to recreate the antique flea market look. The furniture are characterized by their aged appearance, with distressed wood composition covered in sanded milk paint to show signs of wear and tear.  Decorative accents for shabby chic decor should be soft and opulent, often with an affected feel, in order to bring the overall interior design to a contemporary standard. Generously introduce linen textiles for added style. Though orthodox shabby chic colors are white, ecru and pastel, don’t be afraid to apply some vibrant colors.")
 
       AttributeList = [MidCenturyModern, Industrial, Nautical, Scandinavian, Bohemian, Farmhouse, UrbanModern, ShabbyChic]
 
@@ -107,7 +114,8 @@ class ctfStyle:
 if __name__ == "__main__":
    import random
    for i in range(5):
-      print(random.choice(ctfStyle.ctfDecor.AttributeList))
+      g = random.choice(ctfStyle.ctfDecor.AttributeList)
+      print("{0} - {1}".format(g, g.desc))
    print("Calling Directly from class like an ENUM: {0}".format(ctfStyle.ctfDecor.MidCenturyModern))
    for i in range(5):
       s = random.choice(ctfStyle.ctfLifeStyle.AttributeList)
